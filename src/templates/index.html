@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedle</title>
+    <script>
+        async function makeGuess() {
+            const guessInput = document.getElementById('guess');
+            const guess = guessInput.value.trim();
+            
+            // Clear input field for a new guess
+            guessInput.value = '';
+    
+            // Send the guess to the server
+            const response = await fetch('/guess', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ guess: guess })
+            });
+    
+            const data = await response.json();
+            const messages = document.getElementById('messages');
+            const previousGuesses = document.getElementById('previous-guesses');
+    
+            // Update the main message
+            messages.innerHTML = `<p>${data.message}</p>`;
+    
+            // Show top guesses
+            if (data.closest) {
+                messages.innerHTML += '<h3>Closest guesses:</h3><ul>' +
+                    data.closest.map(c => `<li>${c.word}: ${c.similarity.toFixed(4)}</li>`).join('') +
+                    '</ul>';
+            }
+    
+            // Update all previous guesses (this includes the most recent guess)
+            if (data.guesses) {
+                previousGuesses.innerHTML = '<h3>All Previous Guesses:</h3><ul>' +
+                    data.guesses.map(g => `<li>${g.word}: ${g.similarity.toFixed(4)}</li>`).join('') +
+                    '</ul>';
+            }
+        }
+    
+
+        async function resetGame() {
+        const response = await fetch('/reset', {
+            method: 'POST'
+        });
+        const data = await response.json();
+
+        // Display the correct answer
+        const messages = document.getElementById('messages');
+        messages.innerHTML = `<p>The correct answer was: <strong>${data.secret_word}</strong></p>`;
+        
+        // Wait a moment and then reload the page
+        setTimeout(() => {
+            location.reload();
+        }, 3000); // 3-second delay
+    }
+    </script>
+</head>
+<body>
+    <h1>Embedle</h1>
+    <form id="guess-form" onsubmit="event.preventDefault(); makeGuess();">
+        <input type="text" id="guess" placeholder="Enter your guess" required>
+        <button type="submit">Guess</button>
+    </form>
+    <button onclick="resetGame()">New Game</button>
+    <div id="messages"></div>
+    <div id="previous-guesses"></div>
+</body>
+</html>
