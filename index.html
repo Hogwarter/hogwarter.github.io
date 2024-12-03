@@ -1,37 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="refresh" content="0; url=https://hogwarter.github.io/src/templates/index.html">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess the Word</title>
-    <script>
-        async function makeGuess() {
-            const guess = document.getElementById('guess').value;
-            const response = await fetch('/guess', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ guess: guess })
-            });
-            const data = await response.json();
-            const messages = document.getElementById('messages');
-            if (data.success) {
-                messages.innerHTML = `<p>${data.message}</p>`;
-                document.getElementById('guess-form').style.display = 'none';
-            } else {
-                messages.innerHTML = `<p>${data.message}</p>`;
-                if (data.closest) {
-                    messages.innerHTML += '<h3>Closest guesses:</h3><ul>' +
-                        data.closest.map(c => `<li>${c.word}: ${c.similarity.toFixed(4)}</li>`).join('') +
-                        '</ul>';
-                }
-            }
-        }
-
-        async function resetGame() {
-            await fetch('/reset');
-            location.reload();
-        }
-    </script>
 </head>
 <body>
  <p>Hello world!</p>
